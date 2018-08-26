@@ -1,0 +1,17 @@
+{
+  "name": "typist",
+  "version": "1.0.0",
+  "description": "type machine",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "type"
+  ],
+  "author": "Geass",
+  "license": "ISC",
+  "dependencies": {
+    "rxjs": "^6.2.2"
+  }
+}
