@@ -12,6 +12,7 @@
   "author": "Geass",
   "license": "ISC",
   "dependencies": {
-    "rxjs": "^6.2.2"
+    "rxjs": "^6.2.2",
+    "webpack": "^4.17.1"
   }
 }

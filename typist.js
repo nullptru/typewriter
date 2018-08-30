@@ -1,9 +1,9 @@
-const { from, empty, of } = require('rxjs');
-const { delay, concatMap } = require('rxjs/operators');
+import { from, empty, of } from 'rxjs';
+import { delay, concatMap } from 'rxjs/operators'
 
-class Typist {
+export class Typist {
   constructor(container, options = {}) {
-    this.el = null;// document.getElementById(container);
+    this.el = document.getElementById(container);
     this.queue = [];
     this.waitTime = options.waitTime || 100;
   }
@@ -19,7 +19,12 @@ class Typist {
 
     this.addToQueue(from(inputArray)
       .pipe(
-        concatMap((str, index) => of(str).pipe(delay(this.waitTime * index))),
+        concatMap((str, index) => {
+          const source$ = index
+            ? of({ type: 'insert', content: str })
+            : of({ type: 'insert', content: str, placeholder: placeholder || '<span>' }) // first
+          return source$.pipe(delay(this.waitTime * index))
+        }),
       )
     );
     return this;
@@ -50,8 +55,9 @@ class Typist {
       complete: () => {
         const first = this.queue.shift();
         first.subscribe({
-          next: (val) => {
-            console.log(val);
+          next: (res) => {
+            this.handleResult(res)
+            console.log(res);
           },
           complete: () => {
             if (this.queue.length) {
@@ -62,6 +68,21 @@ class Typist {
       }
     })
   }
+  handleResult(res) {
+    switch(res.type) {
+      case 'insert':
+        if (res.placeholder) { // first
+          // create a empty node
+          const holder = document.createElement('div');
+          holder.innerHTML = res.placeholder;
+          const newNode = holder.firstChild;
+          newNode.innerHTML = res.content;
+          this.el.appendChild(newNode);
+        } else {
+          this.el.lastChild.innerHTML += res.content;
+        }
+        break;
+    }
+  }
 }
 
-new Typist().type('This').wait(1000).type('is').wait(1000).type('a').type('Test.')
