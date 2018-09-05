@@ -1,5 +1,5 @@
-import { from, empty, of } from 'rxjs';
-import { delay, concatMap } from 'rxjs/operators'
+import { from, empty, of, timer } from 'rxjs';
+import { delay, concatMap, take, tap } from 'rxjs/operators'
 
 export class Typist {
   constructor(container, options = {}) {
@@ -35,6 +35,39 @@ export class Typist {
       empty().pipe(delay(time || this.waitTime))
     );
     return this;
+  }
+
+  del(count) {
+    this.addToQueue(timer(0, this.waitTime)
+    .pipe(
+      take(count),
+      tap(() => {
+        this.singleRemove()
+      })
+    )
+  )
+    
+    return this;
+  }
+
+  singleRemove() {
+    const lastElement = this.el.lastElementChild;
+    if (lastElement.nodeType === 1) {
+      const text = lastElement.innerText;
+      const len = text.length;
+      console.log(lastElement, text, 'Last')
+      if (len > 1) {
+        // if last element has enough text
+        lastElement.innerText = text.slice(0, len - 1);
+      } else if (len === 1){
+        this.el.removeChild(lastElement);
+      } else {
+        this.el.removeChild(lastElement);
+        this.singleRemove();
+      }
+    } else {
+      throw new Error('Last Element should be a Element Node.');
+    }
   }
 
   addToQueue(observable) {
